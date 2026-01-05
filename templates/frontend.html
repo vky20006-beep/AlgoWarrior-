@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Vision AI - Intelligent Traffic Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .navbar-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 10px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .hero h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-area {
+            background: white;
+            border-radius: 10px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .lane-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .lane-upload:hover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+
+        .lane-upload input[type="file"] {
+            display: none;
+        }
+
+        .lane-upload label {
+            cursor: pointer;
+            display: block;
+        }
+
+        .lane-upload h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .lane-status {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .lane-status .lane-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .lane-status .density {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .signal-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .signal-green {
+            background: #4CAF50;
+        }
+
+        .signal-yellow {
+            background: #FFC107;
+        }
+
+        .signal-red {
+            background: #f44336;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .improvement {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-box h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-section h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .vehicle-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .vehicle-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .vehicle-item .count {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .vehicle-item .label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-links {
+                gap: 1rem;
+            }
+
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>🚦 Traffic Vision AI</h1>
+        <div class="navbar-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#start">Start</a>
+            <a href="#analysis">Analysis</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero" id="home">
+            <h2>Intelligent Traffic Management System</h2>
+            <p>
+                Real-time vehicle detection and dynamic traffic signal control using advanced AI.
+                Reduce waiting time by up to 67% with our YOLOv8-powered system.
+            </p>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features">
+            <h2 style="text-align: center; color: white; margin: 2rem 0; font-size: 2rem;">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🔍 Vehicle Detection</h3>
+                    <p>Real-time detection and counting of cars, buses, trucks, and motorcycles using YOLOv8.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🚁 Ambulance Priority</h3>
+                    <p>Automatic detection of ambulances with immediate green light activation.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Live Dashboard</h3>
+                    <p>Real-time monitoring of all 4 lanes with dynamic traffic visualization.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📈 Analytics & Reporting</h3>
+                    <p>Detailed traffic analysis, vehicle count statistics, and performance metrics.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Dynamic Control</h3>
+                    <p>Intelligent signal timing based on real-time vehicle density in each lane.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎥 Multi-format Support</h3>
+                    <p>Support for MP4, AVI, FLV and live camera feeds from any source.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-area" id="start">
+            <h2 style="color: #667eea; margin-bottom: 2rem; text-align: center;">Upload Traffic Videos</h2>
+            <form id="uploadForm">
+                <div class="upload-grid">
+                    <div class="lane-upload">
+                        <label for="lane1">
+                            <h4>Lane 1</h4>
+                            <p>📹 Click to select video</p>
+                        </label>
+                        <input type="file" id="lane1" name="lane1_video" accept="video/*">
+                    </div>
+                    <div class="lane-upload">
+                        <label for="lane2">
+                            <h4>Lane 2</h4>
+                            <p>📹 Click to select video</p>
+                        </label>
+                        <input type="file" id="lane2" name="lane2_video" accept="video/*">
+                    </div>
+                    <div class="lane-upload">
+                        <label for="lane3">
+                            <h4>Lane 3</h4>
+                            <p>📹 Click to select video</p>
+                        </label>
+                        <input type="file" id="lane3" name="lane3_video" accept="video/*">
+                    </div>
+                    <div class="lane-upload">
+                        <label for="lane4">
+                            <h4>Lane 4</h4>
+                            <p>📹 Click to select video</p>
+                        </label>
+                        <input type="file" id="lane4" name="lane4_video" accept="video/*">
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="button" style="font-size: 1.1rem; padding: 1rem 2rem;">Upload & Start Processing</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Processing Status -->
+        <div id="processingStatus" style="display: none;">
+            <div class="dashboard-card">
+                <h3>Processing Status</h3>
+                <div class="loading">Processing your videos</div>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">This may take a few minutes...</p>
+            </div>
+        </div>
+
+        <!-- Live Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <h2 style="text-align: center; color: white; margin: 2rem 0; font-size: 2rem;">Live Traffic Dashboard</h2>
+            <div class="dashboard" id="lanesDashboard"></div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div id="analysis" style="display: none;">
+            <h2 style="text-align: center; color: white; margin: 2rem 0; font-size: 2rem;">Traffic Analysis</h2>
+            
+            <!-- Stats -->
+            <div class="stats" id="statsContainer"></div>
+
+            <!-- Vehicle Breakdown -->
+            <div class="analysis-section">
+                <h3>Vehicle Count Breakdown</h3>
+                <div class="vehicle-breakdown" id="vehicleBreakdown"></div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-container">
+                <h3>Lane Density Comparison</h3>
+                <canvas id="densityChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Traffic Signal Timing Comparison</h3>
+                <p style="color: #666; margin-bottom: 1rem;">Traditional System vs Proposed AI System</p>
+                <canvas id="timingChart"></canvas>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="analysis-section">
+                <h3>Detailed Lane Analysis</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Lane</th>
+                            <th>Traditional Time</th>
+                            <th>Proposed Time</th>
+                            <th>Time Saved</th>
+                            <th>Reduction %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let analysisData = null;
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const lanes = ['lane1', 'lane2', 'lane3', 'lane4'];
+            
+            for (const lane of lanes) {
+                const input = document.getElementById(lane);
+                if (input.files.length > 0) {
+                    formData.append(`${lane}_video`, input.files[0]);
+                }
+            }
+
+            try {
+                // Create session
+                const createResponse = await fetch('/api/sessions', { method: 'POST' });
+                const session = await createResponse.json();
+                sessionId = session.session_id;
+
+                // Show processing status
+                document.getElementById('processingStatus').style.display = 'block';
+
+                // Upload videos
+                await fetch(`/api/sessions/${sessionId}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Poll for completion
+                let completed = false;
+                while (!completed) {
+                    const statusResponse = await fetch(`/api/sessions/${sessionId}/status`);
+                    const status = await statusResponse.json();
+
+                    if (status.lanes && status.lanes.length > 0) {
+                        completed = true;
+                        document.getElementById('processingStatus').style.display = 'none';
+                        displayDashboard(status);
+                        loadAnalysis();
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        function displayDashboard(data) {
+            const container = document.getElementById('lanesDashboard');
+            container.innerHTML = '';
+
+            data.lanes.forEach(lane => {
+                const card = document.createElement('div');
+                card.className = 'dashboard-card';
+                card.innerHTML = `
+                    <h3>Lane ${lane.lane_number}</h3>
+                    <div class="lane-status">
+                        <div class="lane-name">Total Vehicles: ${lane.total_vehicles}</div>
+                        <div class="density">
+                            🚗 Cars: ${lane.car_count} | 🚌 Buses: ${lane.bus_count} |
+                            🚚 Trucks: ${lane.truck_count} | 🏍️ Motorcycles: ${lane.motorcycle_count}
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <strong>Signal Duration:</strong> ${lane.signal_duration.toFixed(2)}s
+                        </div>
+                        ${lane.ambulance_detected ? '<div style="color: red; margin-top: 0.5rem;">🚑 Ambulance Detected</div>' : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        async function loadAnalysis() {
+            try {
+                const response = await fetch(`/api/sessions/${sessionId}/analysis`);
+                analysisData = await response.json();
+
+                // Display stats
+                const statsContainer = document.getElementById('statsContainer');
+                statsContainer.innerHTML = `
+                    <div class="stat-box">
+                        <h4>Total Vehicles</h4>
+                        <div class="value">${Object.values(analysisData.vehicle_breakdown).reduce((a, b) => a + b, 0)}</div>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Ambulance Events</h4>
+                        <div class="value">${analysisData.ambulance_events}</div>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Traffic Reduction</h4>
+                        <div class="value">${analysisData.traffic_reduction_percentage.toFixed(1)}%</div>
+                    </div>
+                `;
+
+                // Display vehicle breakdown
+                const vehicleBreakdown = document.getElementById('vehicleBreakdown');
+                vehicleBreakdown.innerHTML = `
+                    <div class="vehicle-item">
+                        <div class="count">${analysisData.vehicle_breakdown.cars}</div>
+                        <div class="label">Cars</div>
+                    </div>
+                    <div class="vehicle-item">
+                        <div class="count">${analysisData.vehicle_breakdown.buses}</div>
+                        <div class="label">Buses</div>
+                    </div>
+                    <div class="vehicle-item">
+                        <div class="count">${analysisData.vehicle_breakdown.trucks}</div>
+                        <div class="label">Trucks</div>
+                    </div>
+                    <div class="vehicle-item">
+                        <div class="count">${analysisData.vehicle_breakdown.motorcycles}</div>
+                        <div class="label">Motorcycles</div>
+                    </div>
+                `;
+
+                // Populate comparison table
+                const table = document.getElementById('comparisonTable');
+                table.innerHTML = analysisData.signal_timings.map(timing => `
+                    <tr>
+                        <td><strong>${timing.lane}</strong></td>
+                        <td>30.00s</td>
+                        <td>${timing.proposed.toFixed(2)}s</td>
+                        <td class="improvement">${(30 - timing.proposed).toFixed(2)}s</td>
+                        <td class="improvement">${timing.reduction.toFixed(1)}%</td>
+                    </tr>
+                `).join('');
+
+                // Create charts
+                createDensityChart();
+                createTimingChart();
+
+                document.getElementById('analysis').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading analysis:', error);
+            }
+        }
+
+        function createDensityChart() {
+            const ctx = document.getElementById('densityChart').getContext('2d');
+            const labels = analysisData.lane_densities.map(d => d.lane);
+            const data = analysisData.lane_densities.map(d => d.density);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Vehicle Density',
+                        data: data,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Number of Vehicles' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTimingChart() {
+            const ctx = document.getElementById('timingChart').getContext('2d');
+            const labels = analysisData.signal_timings.map(t => t.lane);
+            const traditional = analysisData.signal_timings.map(() => 30);
+            const proposed = analysisData.signal_timings.map(t => t.proposed);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Traditional System',
+                            data: traditional,
+                            backgroundColor: 'rgba(244, 67, 54, 0.6)',
+                            borderColor: 'rgba(244, 67, 54, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Proposed AI System',
+                            data: proposed,
+                            backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 60,
+                            title: { display: true, text: 'Signal Duration (seconds)' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
